@@ -1,0 +1,221 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CS Mathematics Pre-test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            line-height: 1.5;
+            padding: 0 1rem;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .question {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+            .question h3 {
+                margin-top: 0;
+            }
+
+        .options label {
+            display: block;
+            margin: 0.3rem 0;
+            cursor: pointer;
+        }
+
+        button {
+            display: block;
+            margin: 2rem auto;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 4px;
+            background: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #0056b3;
+            }
+
+        #results {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-top: 2px solid #007BFF;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>CS Mathematics Pre-test</h1>
+    <form id="quizForm">
+        <!-- Questions will be injected here by JavaScript -->
+    </form>
+    <button onclick="gradeQuiz()">Submit Answers</button>
+    <div id="results"></div>
+
+    <script>
+    const questions = [
+      {
+        text: "1. If 2^n = 1024, what is the value of n?",
+        options: ["n = 8","n = 10","n = 12","n = 16"],
+        answer: 1,
+        explanation: "2^10 = 1024."
+      },
+      {
+        text: "2. Solve: |x - 5| = 7",
+        options: ["x = 12 only","x = -2 only","x = 12 or x = -2","x = 2 or x = 12"],
+        answer: 2,
+        explanation: "x - 5 = ±7 ⇒ x = 12 or x = -2."
+      },
+      {
+        text: "3. What is the sum of interior angles in a hexagon?",
+        options: ["540°","720°","900°","1080°"],
+        answer: 1,
+        explanation: "(6-2)×180° = 720°."
+      },
+      {
+        text: "4. If log₂(64) = x, then x equals:",
+        options: ["4","6","8","16"],
+        answer: 1,
+        explanation: "2^6 = 64."
+      },
+      {
+        text: "5. What is the area of a rectangle with length 2x and width 3y?",
+        options: ["5xy","6xy","6x + 6y","2x + 3y"],
+        answer: 1,
+        explanation: "Area = 2x × 3y = 6xy."
+      },
+      {
+        text: "6. What is the distance between P(0,0) and Q(6,8)?",
+        options: ["8","10","12","14"],
+        answer: 1,
+        explanation: "√(6²+8²) = 10."
+      },
+      {
+        text: "7. Equation of line through (0,4) with slope -2?",
+        options: ["y = -2x + 4","y = 2x + 4","y = -2x - 4","y = 4x - 2"],
+        answer: 0,
+        explanation: "y = mx + b = -2x + 4."
+      },
+      {
+        text: "8. In which quadrant is (-4,7)?",
+        options: ["Quadrant I","Quadrant II","Quadrant III","Quadrant IV"],
+        answer: 1,
+        explanation: "x<0, y>0 ⇒ Quadrant II."
+      },
+      {
+        text: "9. Midpoint from (3,2) to (9,10)?",
+        options: ["(6,6)","(6,8)","(12,12)","(5,7)"],
+        answer: 0,
+        explanation: "((3+9)/2, (2+10)/2) = (6,6)."
+      },
+      {
+        text: "10. What is sin(45°)?",
+        options: ["1/2","√2/2","√3/2","1"],
+        answer: 1,
+        explanation: "sin(45°) = √2/2."
+      },
+      {
+          text: "11. Which trigonometric identity is fundamental in CS applications?",
+          options: ["sin²θ + cos²θ = 1", "sin²θ - cos²θ = 1", "sinθ + cosθ = 1","sinθ - cosθ = 1"],
+        answer: 0,
+        explanation: "Pythagorean identity: sin²θ + cos²θ = 1."
+      },
+      {
+        text: "12. In a right triangle, opposite=5, adjacent=12, tan θ = ?",
+        options: ["5/12","12/5","5/13","12/13"],
+        answer: 0,
+        explanation: "tan θ = opposite/adjacent = 5/12."
+      },
+      {
+        text: "13. Period of y = cos(x)?",
+        options: ["π","2π","π/2","4π"],
+        answer: 1,
+        explanation: "Cosine repeats every 2π."
+      },
+      {
+        text: "14. If f(x)=2x²−3x+1, what is f(3)?",
+        options: ["8","10","12","14"],
+        answer: 1,
+        explanation: "2·9−9+1 = 10."
+      },
+      {
+        text: "15. Which is one-to-one (injective)?",
+        options: ["f(x)=x²","f(x)=|x|","f(x)=3x−2","f(x)=x²+1"],
+        answer: 2,
+        explanation: "Linear non-constant is injective."
+      },
+      {
+        text: "16. Domain of f(x)=1/(x²−4)?",
+        options: ["All reals","All reals except ±2","x>2","x≥4"],
+        answer: 1,
+        explanation: "Denominator ≠ 0 ⇒ x ≠ ±2."
+      }
+    ];
+
+    // render questions
+    const form = document.getElementById('quizForm');
+    questions.forEach((q, i) => {
+      const div = document.createElement('div');
+      div.className = 'question';
+      div.innerHTML = `
+        <h3>${q.text}</h3>
+        <div class="options">
+          ${q.options.map((opt, j) =>
+            `<label>
+               <input type="radio" name="q${i}" value="${j}" />
+               ${String.fromCharCode(97 + j)}) ${opt}
+             </label>`
+          ).join('')}
+        </div>`;
+      form.appendChild(div);
+    });
+
+    function gradeQuiz() {
+      let score = 0;
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<h2>Your Results</h2>';
+      questions.forEach((q, i) => {
+        const selected = form[`q${i}`].value;
+        const correctIndex = q.answer;
+        const isCorrect = Number(selected) === correctIndex;
+        if (isCorrect) score++;
+        // feedback for each
+        const p = document.createElement('p');
+        p.innerHTML = `<strong>Q${i+1}:</strong> You answered
+          ${selected ? String.fromCharCode(97 + selected) : '<em>nothing</em>'}.
+          <span class="${isCorrect ? 'correct' : 'incorrect'}">
+            ${isCorrect ? 'Correct!' : 'Incorrect. Correct answer is ' +
+              String.fromCharCode(97 + correctIndex) + '.) ' + q.options[correctIndex]}
+          </span>
+          <br><em>Explanation:</em> ${q.explanation}`;
+        resultsDiv.appendChild(p);
+      });
+      const summary = document.createElement('h3');
+      const percent = Math.round(score / questions.length * 100);
+      summary.textContent = `You scored ${score} out of ${questions.length} (${percent}%).`;
+      resultsDiv.prepend(summary);
+    }
+    </script>
+</body>
+</html>
