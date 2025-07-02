@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Mathematics Slides</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .floating-math {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #e6f3ff;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .example-box {
+            background: rgba(0, 255, 127, 0.1);
+            border-left: 5px solid #00ff7f;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .formula {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.3rem;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .coordinate-plane {
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            margin: 20px auto;
+            position: relative;
+            border-radius: 10px;
+        }
+
+        .axis {
+            position: absolute;
+            background: #333;
+        }
+
+        .x-axis {
+            width: 100%;
+            height: 2px;
+            top: 50%;
+            left: 0;
+        }
+
+        .y-axis {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+        }
+
+        .quadrant {
+            position: absolute;
+            width: 45%;
+            height: 45%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .q1 { top: 5%; right: 5%; background: rgba(255, 0, 0, 0.2); }
+        .q2 { top: 5%; left: 5%; background: rgba(0, 255, 0, 0.2); }
+        .q3 { bottom: 5%; left: 5%; background: rgba(0, 0, 255, 0.2); }
+        .q4 { bottom: 5%; right: 5%; background: rgba(255, 255, 0, 0.2); }
+
+        .point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: red;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .lang-toggle {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .lang-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #00ff7f;
+            color: #000;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .thai {
+            display: none;
+        }
+
+        .bilingual .thai {
+            display: block;
+        }
+
+        .bilingual .english {
+            display: none;
+        }
+
+        .key-messages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .message-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .message-card:hover {
+            transform: scale(1.05);
+        }
+
+        .interactive-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .interactive-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        .practice-problem {
+            background: rgba(255, 165, 0, 0.2);
+            border: 2px solid #ffa500;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .solution {
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 4px solid #00ff00;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Math Symbols -->
+    <div class="floating-math" style="top: 10%; left: 5%; animation-delay: 0s;">∑</div>
+    <div class="floating-math" style="top: 20%; right: 10%; animation-delay: 1s;">∫</div>
+    <div class="floating-math" style="bottom: 15%; left: 8%; animation-delay: 2s;">π</div>
+    <div class="floating-math" style="top: 60%; right: 15%; animation-delay: 3s;">√</div>
+    <div class="floating-math" style="bottom: 25%; right: 5%; animation-delay: 4s;">∞</div>
+    <div class="floating-math" style="top: 40%; left: 12%; animation-delay: 5s;">α</div>
+
+    <!-- Language Toggle -->
+    <button class="lang-toggle" onclick="toggleLanguage()">
+        <span class="english">🇹🇭 ไทย</span>
+        <span class="thai">🇺🇸 English</span>
+    </button>
+
+    <!-- Slide Counter -->
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+    </div>
+
+    <div class="slide-container">
+        <!-- Slide 1: Title & Introduction -->
+        <div class="slide active">
+            <h1>
+                <span class="english">Interactive Mathematics</span>
+                <span class="thai">คณิตศาสตร์เชิงโต้ตอบ</span>
+            </h1>
+            <h2 style="text-align: center; margin-bottom: 40px;">
+                <span class="english">Basic Algebra & Coordinate Geometry</span>
+                <span class="thai">พีชคณิตพื้นฐาน และเรขาคณิตพิกัด</span>
+            </h2>
+
+            <div class="key-messages">
+                <div class="message-card">
+                    <h3>
+                        <span class="english">🧱 Strong Foundations</span>
+                        <span class="thai">🧱 รากฐานที่แข็งแกร่ง</span>
+                    </h3>
+                    <p>
+                        <span class="english">Building essential mathematical skills through systematic learning and practice</span>
+                        <span class="thai">สร้างทักษะคณิตศาสตร์ที่จำเป็นผ่านการเรียนรู้และฝึกฝนอย่างเป็นระบบ</span>
+                    </p>
+                </div>
+                <div class="message-card">
+                    <h3>
+                        <span class="english">💪 Build Confidence</span>
+                        <span class="thai">💪 สร้างความมั่นใจ</span>
+                    </h3>
+                    <p>
+                        <span class="english">Developing problem-solving confidence through step-by-step guided examples</span>
+                        <span class="thai">พัฒนาความมั่นใจในการแก้ปัญหาผ่านตัวอย่างที่แนะนำทีละขั้นตอน</span>
+                    </p>
+                </div>
+                <div class="message-card">
+                    <h3>
+                        <span class="english">🎯 Master Problem-Solving</span>
+                        <span class="thai">🎯 เชี่ยวชาญการแก้ปัญหา</span>
+                    </h3>
+                    <p>
+                        <span class="english">Applying mathematical concepts to real-world situations and advanced studies</span>
+                        <span class="thai">ประยุกต์แนวคิดทางคณิตศาสตร์กับสถานการณ์จริงและการศึกษาขั้นสูง</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Course Overview -->
+        <div class="slide">
+            <h2>
+                <span class="english">Course Overview</span>
+                <span class="thai">ภาพรวมหลักสูตร</span>
+            </h2>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>
+                        <span class="english">Quadrant III</span>
+                        <span class="thai">จตุภาคที่ III</span>
+                    </h3>
+                    <p>
+                        <span class="english">Both x and y are negative (-, -)</span>
+                        <span class="thai">ทั้ง x และ y เป็นลบ (-, -)</span>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>
+                        <span class="english">Quadrant IV</span>
+                        <span class="thai">จตุภาคที่ IV</span>
+                    </h3>
+                    <p>
+                        <span class="english">x is positive, y is negative (+, -)</span>
+                        <span class="thai">x เป็นบวก, y เป็นลบ (+, -)</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>
+                    <span class="english">Step-by-Step Plotting Instructions for Point (3, -2)</span>
+                    <span class="thai">คำแนะนำการลงจุดทีละขั้นตอนสำหรับจุด (3, -2)</span>
+                </h3>
+                <ol class="step-list">
+                    <li>
+                        <span class="english">Start at the origin (0, 0)</span>
+                        <span class="thai">เริ่มต้นที่จุดกำเนิด (0, 0)</span>
+                    </li>
+                    <li>
+                        <span class="english">Move 3 units to the right (positive x-direction)</span>
+                        <span class="thai">เลื่อน 3 หน่วยไปทางขวา (ทิศทาง x บวก)</span>
+                    </li>
+                    <li>
+                        <span class="english">Move 2 units down (negative y-direction)</span>
+                        <span class="thai">เลื่อน 2 หน่วยลงไป (ทิศทาง y ลบ)</span>
+                    </li>
+                    <li>
+                        <span class="english">Mark the point - it's in Quadrant IV</span>
+                        <span class="thai">ทำเครื่องหมายจุด - อยู่ในจตุภาคที่ IV</span>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 6: Cartesian Coordinate System -->
+        <div class="slide">
+            <h2>
+                <span class="english">Cartesian Coordinate System</span>
+                <span class="thai">ระบบพิกัดคาร์ทีเซียน</span>
+            </h2>
+
+            <div class="card">
+                <h3>
+                    <span class="english">Historical Context</span>
+                    <span class="thai">บริบททางประวัติศาสตร์</span>
+                </h3>
+                <p>
+                    <span class="english">Named after French mathematician René Descartes (1596-1650), who revolutionized mathematics by connecting algebra and geometry through coordinate systems.</span>
+                    <span class="thai">ตั้งชื่อตามนักคณิตศาสตร์ชาวฝรั่งเศส เรอเน เดการ์ต (1596-1650) ผู้ที่ปฏิวัติคณิตศาสตร์โดยเชื่อมโยงพีชคณิตและเรขาคณิตผ่านระบบพิกัด</span>
+                </p>
+            </div>
+
+            <div class="card-grid">
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">📏 X-Axis Properties</span>
+                        <span class="thai">📏 คุณสมบัติแกน X</span>
+                    </h3>
+                    <p>
+                        <span class="english"><strong>Horizontal axis</strong> (abscissa)<br>
+                        • Positive direction: right<br>
+                        • Negative direction: left<br>
+                        • Represents independent variable</span>
+                        <span class="thai"><strong>แกนแนวนอน</strong> (อับซิสซา)<br>
+                        • ทิศทางบวก: ขวา<br>
+                        • ทิศทางลบ: ซ้าย<br>
+                        • แสดงตัวแปรอิสระ</span>
+                    </p>
+                </div>
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">📐 Y-Axis Properties</span>
+                        <span class="thai">📐 คุณสมบัติแกน Y</span>
+                    </h3>
+                    <p>
+                        <span class="english"><strong>Vertical axis</strong> (ordinate)<br>
+                        • Positive direction: up<br>
+                        • Negative direction: down<br>
+                        • Represents dependent variable</span>
+                        <span class="thai"><strong>แกนแนวตั้ง</strong> (ออร์ดิเนต)<br>
+                        • ทิศทางบวก: ขึ้น<br>
+                        • ทิศทางลบ: ลง<br>
+                        • แสดงตัวแปรตาม</span>
+                    </p>
+                </div>
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">🎯 Origin Significance</span>
+                        <span class="thai">🎯 ความสำคัญของจุดกำเนิด</span>
+                    </h3>
+                    <p>
+                        <span class="english"><strong>Point (0,0)</strong><br>
+                        • Intersection of both axes<br>
+                        • Reference point for all coordinates<br>
+                        • Zero point for measurements</span>
+                        <span class="thai"><strong>จุด (0,0)</strong><br>
+                        • จุดตัดของแกนทั้งสอง<br>
+                        • จุดอ้างอิงสำหรับพิกัดทั้งหมด<br>
+                        • จุดศูนย์สำหรับการวัด</span>
+                    </p>
+                </div>
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">⚙️ System Properties</span>
+                        <span class="thai">⚙️ คุณสมบัติของระบบ</span>
+                    </h3>
+                    <p>
+                        <span class="english"><strong>Key Features:</strong><br>
+                        • Perpendicular axes<br>
+                        • Uniform scale units<br>
+                        • Infinite extent in all directions<br>
+                        • Unique point representation</span>
+                        <span class="thai"><strong>คุณลักษณะสำคัญ:</strong><br>
+                        • แกนตั้งฉาก<br>
+                        • หน่วยมาตราส่วนสม่ำเสมอ<br>
+                        • ขยายไม่สิ้นสุดในทุกทิศทาง<br>
+                        • การแสดงจุดที่ไม่ซ้ำกัน</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>
+                    <span class="english">5-Step Plotting Instructions for Any Point (a, b)</span>
+                    <span class="thai">คำแนะนำ 5 ขั้นตอนสำหรับการลงจุดใดๆ (a, b)</span>
+                </h3>
+                <ol class="step-list">
+                    <li>
+                        <span class="english">Locate the origin (0, 0) where the axes intersect</span>
+                        <span class="thai">หาจุดกำเนิด (0, 0) ที่แกนทั้งสองตัดกัน</span>
+                    </li>
+                    <li>
+                        <span class="english">From origin, move |a| units along x-axis (right if a > 0, left if a < 0)</span>
+                        <span class="thai">จากจุดกำเนิด เลื่อน |a| หน่วยตามแกน x (ขวาถ้า a > 0, ซ้ายถ้า a < 0)</span>
+                    </li>
+                    <li>
+                        <span class="english">From that position, move |b| units parallel to y-axis (up if b > 0, down if b < 0)</span>
+                        <span class="thai">จากตำแหน่งนั้น เลื่อน |b| หน่วยขนานกับแกน y (ขึ้นถ้า b > 0, ลงถ้า b < 0)</span>
+                    </li>
+                    <li>
+                        <span class="english">Mark the final position with a point</span>
+                        <span class="thai">ทำเครื่องหมายตำแหน่งสุดท้ายด้วยจุด</span>
+                    </li>
+                    <li>
+                        <span class="english">Label the point as (a, b)</span>
+                        <span class="thai">ติดป้ายจุดเป็น (a, b)</span>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 7: Distance Between Points -->
+        <div class="slide">
+            <h2>
+                <span class="english">Distance Between Points</span>
+                <span class="thai">ระยะทางระหว่างจุด</span>
+            </h2>
+
+            <div class="formula">
+                <span class="english">Distance Formula: d = √[(x₂-x₁)² + (y₂-y₁)²]</span>
+                <span class="thai">สูตรระยะทาง: d = √[(x₂-x₁)² + (y₂-y₁)²]</span>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>
+                        <span class="english">🧮 Mathematical Foundation</span>
+                        <span class="thai">🧮 รากฐานทางคณิตศาสตร์</span>
+                    </h3>
+                    <p>
+                        <span class="english">The distance formula is derived from the Pythagorean theorem. When we connect two points, we form a right triangle where the distance is the hypotenuse, and the differences in x and y coordinates are the legs.</span>
+                        <span class="thai">สูตรระยะทางมาจากทฤษฎีบทพีทาโกรัส เมื่อเราเชื่อมจุดสองจุด เราจะได้สามเหลี่ยมมุมฉาก โดยระยะทางคือด้านตรงข้ามมุมฉาก และความแตกต่างของพิกัด x และ y คือด้านประกอบมุมฉาก</span>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>
+                        <span class="english">🌍 Real-World Applications</span>
+                        <span class="thai">🌍 การประยุกต์ใช้ในโลกจริง</span>
+                    </h3>
+                    <p>
+                        <span class="english"><strong>GPS Navigation:</strong> Calculate shortest routes<br>
+                        <strong>Computer Graphics:</strong> 3D rendering and animations<br>
+                        <strong>Engineering:</strong> Structural design and analysis<br>
+                        <strong>Physics:</strong> Motion and force calculations</span>
+                        <span class="thai"><strong>ระบบนำทาง GPS:</strong> คำนวณเส้นทางที่สั้นที่สุด<br>
+                        <strong>กราฟิกคอมพิวเตอร์:</strong> การเรนเดอร์และแอนิเมชัน 3D<br>
+                        <strong>วิศวกรรม:</strong> การออกแบบและวิเคราะห์โครงสร้าง<br>
+                        <strong>ฟิสิกส์:</strong> การคำนวณการเคลื่อนที่และแรง</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>
+                    <span class="english">Complete Worked Example: Distance from A(1,2) to B(4,6)</span>
+                    <span class="thai">ตัวอย่างที่ทำสมบูรณ์: ระยะทางจาก A(1,2) ถึง B(4,6)</span>
+                </h3>
+                <ol class="step-list">
+                    <li>
+                        <span class="english">Identify coordinates: A(1,2) means x₁=1, y₁=2 and B(4,6) means x₂=4, y₂=6</span>
+                        <span class="thai">ระบุพิกัด: A(1,2) หมายถึง x₁=1, y₁=2 และ B(4,6) หมายถึง x₂=4, y₂=6</span>
+                    </li>
+                    <li>
+                        <span class="english">Calculate differences: x₂-x₁ = 4-1 = 3 and y₂-y₁ = 6-2 = 4</span>
+                        <span class="thai">คำนวณผลต่าง: x₂-x₁ = 4-1 = 3 และ y₂-y₁ = 6-2 = 4</span>
+                    </li>
+                    <li>
+                        <span class="english">Square the differences: (3)² = 9 and (4)² = 16</span>
+                        <span class="thai">ยกกำลังสองของผลต่าง: (3)² = 9 และ (4)² = 16</span>
+                    </li>
+                    <li>
+                        <span class="english">Add the squares: 9 + 16 = 25</span>
+                        <span class="thai">บวกค่ากำลังสอง: 9 + 16 = 25</span>
+                    </li>
+                    <li>
+                        <span class="english">Take square root: √25 = 5 units</span>
+                        <span class="thai">หารากที่สอง: √25 = 5 หน่วย</span>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="practice-problem">
+                <h3>
+                    <span class="english">Practice Problem: Find distance from C(-2,1) to D(3,-2)</span>
+                    <span class="thai">ปัญหาฝึกหัด: หาระยะทางจาก C(-2,1) ถึง D(3,-2)</span>
+                </h3>
+                <div class="solution">
+                    <p><strong>
+                        <span class="english">Solution:</span>
+                        <span class="thai">วิธีแก้:</span>
+                    </strong></p>
+                    <p>
+                        <span class="english">d = √[(3-(-2))² + (-2-1)²] = √[(5)² + (-3)²] = √[25 + 9] = √34 ≈ 5.83 units</span>
+                        <span class="thai">d = √[(3-(-2))² + (-2-1)²] = √[(5)² + (-3)²] = √[25 + 9] = √34 ≈ 5.83 หน่วย</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Function Theory -->
+        <div class="slide">
+            <h2>
+                <span class="english">Function Theory</span>
+                <span class="thai">ทฤษฎีฟังก์ชัน</span>
+            </h2>
+
+            <div class="formula">
+                <span class="english">A function f maps every element in the domain to exactly one element in the range</span>
+                <span class="thai">ฟังก์ชัน f จับคู่ทุกสมาชิกในโดเมนไปยังสมาชิกเพียงหนึ่งตัวในเรนจ์</span>
+            </div>
+
+            <div class="card-grid">
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">🎯 Domain</span>
+                        <span class="thai">🎯 โดเมน</span>
+                    </h3>
+                    <p>
+                        <span class="english"><strong>Definition:</strong> The set of all possible input values (x-values) for which the function is defined.<br><br>
+                        <strong>Example:</strong> For f(x) = √x, domain is x ≥ 0<br>
+                        <strong>Finding Domain:</strong> Look for restrictions like division by zero, square roots of negatives</span>
+                        <span class="thai"><strong>นิยาม:</strong> เซตของค่าอินพุตที่เป็นไปได้ทั้งหมด (ค่า x) ที่ฟังก์ชันกำหนดไว้<br><br>
+                        <strong>ตัวอย่าง:</strong> สำหรับ f(x) = √x, โดเมนคือ x ≥ 0<br>
+                        <strong>การหาโดเมน:</strong> มองหาข้อจำกัดเช่น การหารด้วยศูนย์, รากที่สองของจำนวนลบ</span>
+                    </p>
+                </div>
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">🎪 Range</span>
+                        <span class="thai">🎪 เรนจ์</span>
+                    </h3>
+                    <p>
+                        <span class="english"><strong>Definition:</strong> The set of all possible output values (y-values) that the function can produce.<br><br>
+                        <strong>Example:</strong> For f(x) = x², range is y ≥ 0<br>
+                        <strong>Finding Range:</strong> Analyze function behavior, find minimum/maximum values</span>
+                        <span class="thai"><strong>นิยาม:</strong> เซตของค่าเอาต์พุตที่เป็นไปได้ทั้งหมด (ค่า y) ที่ฟังก์ชันสามารถผลิตได้<br><br>
+                        <strong>ตัวอย่าง:</strong> สำหรับ f(x) = x², เรนจ์คือ y ≥ 0<br>
+                        <strong>การหาเรนจ์:</strong> วิเคราะห์พฤติกรรมฟังก์ชัน หาค่าต่ำสุด/สูงสุด</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>
+                    <span class="english">📊 Types of Functions</span>
+                    <span class="thai">📊 ประเภทของฟังก์ชัน</span>
+                </h3>
+                <div class="card-grid">
+                    <div class="interactive-card">
+                        <h4>
+                            <span class="english">Linear Functions</span>
+                            <span class="thai">ฟังก์ชันเชิงเส้น</span>
+                        </h4>
+                        <p>
+                            <span class="english">f(x) = mx + b<br>Constant rate of change<br>Graph: Straight line</span>
+                            <span class="thai">f(x) = mx + b<br>อัตราการเปลี่ยนแปลงคงที่<br>กราฟ: เส้นตรง</span>
+                        </p>
+                    </div>
+                    <div class="interactive-card">
+                        <h4>
+                            <span class="english">Quadratic Functions</span>
+                            <span class="thai">ฟังก์ชันกำลังสอง</span>
+                        </h4>
+                        <p>
+                            <span class="english">f(x) = ax² + bx + c<br>U-shaped curve<br>Graph: Parabola</span>
+                            <span class="thai">f(x) = ax² + bx + c<br>เส้นโค้งรูป U<br>กราฟ: พาราโบลา</span>
+                        </p>
+                    </div>
+                    <div class="interactive-card">
+                        <h4>
+                            <span class="english">Exponential Functions</span>
+                            <span class="thai">ฟังก์ชันเลขชี้กำลัง</span>
+                        </h4>
+                        <p>
+                            <span class="english">f(x) = aˣ<br>Rapid growth/decay<br>Graph: Exponential curve</span>
+                            <span class="thai">f(x) = aˣ<br>การเติบโต/สลายตัวอย่างรวดเร็ว<br>กราฟ: เส้นโค้งเลขชี้กำลัง</span>
+                        </p>
+                    </div>
+                    <div class="interactive-card">
+                        <h4>
+                            <span class="english">Absolute Value Functions</span>
+                            <span class="thai">ฟังก์ชันค่าสัมบูรณ์</span>
+                        </h4>
+                        <p>
+                            <span class="english">f(x) = |x|<br>V-shaped graph<br>Always non-negative output</span>
+                            <span class="thai">f(x) = |x|<br>กราฟรูป V<br>เอาต์พุตไม่เป็นลบเสมอ</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>
+                    <span class="english">Function vs. Relation: Key Differences</span>
+                    <span class="thai">ฟังก์ชัน vs. ความสัมพันธ์: ความแตกต่างหลัก</span>
+                </h3>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>
+                            <span class="english">✅ Function</span>
+                            <span class="thai">✅ ฟังก์ชัน</span>
+                        </h4>
+                        <p>
+                            <span class="english">• Each input (x) has exactly ONE output (y)<br>
+                            • Passes the vertical line test<br>
+                            • Example: {(1,2), (2,3), (3,4)}<br>
+                            • Written as y = f(x)</span>
+                            <span class="thai">• แต่ละอินพุต (x) มีเอาต์พุต (y) เพียงหนึ่งเดียว<br>
+                            • ผ่านการทดสอบเส้นตั้ง<br>
+                            • ตัวอย่าง: {(1,2), (2,3), (3,4)}<br>
+                            • เขียนเป็น y = f(x)</span>
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h4>
+                            <span class="english">❌ Relation (Not a Function)</span>
+                            <span class="thai">❌ ความสัมพันธ์ (ไม่ใช่ฟังก์ชัน)</span>
+                        </h4>
+                        <p>
+                            <span class="english">• One input can have multiple outputs<br>
+                            • Fails the vertical line test<br>
+                            • Example: {(1,2), (1,3), (2,4)}<br>
+                            • General mapping between sets</span>
+                            <span class="thai">• อินพุตหนึ่งตัวสามารถมีเอาต์พุตหลายตัว<br>
+                            • ไม่ผ่านการทดสอบเส้นตั้ง<br>
+                            • ตัวอย่าง: {(1,2), (1,3), (2,4)}<br>
+                            • การจับคู่ทั่วไประหว่างเซต</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>
+                    <span class="english">🔄 Special Types of Functions</span>
+                    <span class="thai">🔄 ประเภทพิเศษของฟังก์ชัน</span>
+                </h3>
+                
+                <div class="card-grid">
+                    <div class="interactive-card">
+                        <h4>
+                            <span class="english">🎯 One-to-One Function (Injective)</span>
+                            <span class="thai">🎯 ฟังก์ชันหนึ่งต่อหนึ่ง (อินเจกทีฟ)</span>
+                        </h4>
+                        <p>
+                            <span class="english"><strong>Definition:</strong> Each output value corresponds to at most one input value<br>
+                            <strong>Test:</strong> Horizontal line test - no horizontal line intersects the graph more than once<br>
+                            <strong>Formally:</strong> If f(a) = f(b), then a = b<br>
+                            <strong>Example:</strong> f(x) = 2x + 3</span>
+                            <span class="thai"><strong>นิยาม:</strong> แต่ละค่าเอาต์พุตสอดคล้องกับค่าอินพุตอย่างมากหนึ่งค่า<br>
+                            <strong>การทดสอบ:</strong> การทดสอบเส้นนอน - ไม่มีเส้นนอนตัดกราฟมากกว่าหนึ่งครั้ง<br>
+                            <strong>อย่างเป็นทางการ:</strong> ถ้า f(a) = f(b) แล้ว a = b<br>
+                            <strong>ตัวอย่าง:</strong> f(x) = 2x + 3</span>
+                        </p>
+                    </div>
+                    
+                    <div class="interactive-card">
+                        <h4>
+                            <span class="english">🌐 Onto Function (Surjective)</span>
+                            <span class="thai">🌐 ฟังก์ชันครอบคลุม (เซอร์เจกทีฟ)</span>
+                        </h4>
+                        <p>
+                            <span class="english"><strong>Definition:</strong> Every element in the codomain is mapped to by at least one element in the domain<br>
+                            <strong>Test:</strong> Range equals codomain<br>
+                            <strong>Formally:</strong> For every y in codomain, there exists x in domain such that f(x) = y<br>
+                            <strong>Example:</strong> f: ℝ → ℝ, f(x) = x³</span>
+                            <span class="thai"><strong>นิยาม:</strong> ทุกสมาชิกในโคโดเมนถูกจับคู่โดยสมาชิกอย่างน้อยหนึ่งตัวในโดเมน<br>
+                            <strong>การทดสอบ:</strong> เรนจ์เท่ากับโคโดเมน<br>
+                            <strong>อย่างเป็นทางการ:</strong> สำหรับทุก y ในโคโดเมน จะมี x ในโดเมนที่ f(x) = y<br>
+                            <strong>ตัวอย่าง:</strong> f: ℝ → ℝ, f(x) = x³</span>
+                        </p>
+                    </div>
+                    
+                    <div class="interactive-card">
+                        <h4>
+                            <span class="english">💎 Bijective Function</span>
+                            <span class="thai">💎 ฟังก์ชันไบเจกทีฟ</span>
+                        </h4>
+                        <p>
+                            <span class="english"><strong>Definition:</strong> Both one-to-one AND onto<br>
+                            <strong>Properties:</strong> Has an inverse function<br>
+                            <strong>Perfect correspondence:</strong> Each input maps to exactly one output, and each output comes from exactly one input<br>
+                            <strong>Example:</strong> f(x) = 2x (from ℝ to ℝ)</span>
+                            <span class="thai"><strong>นิยาม:</strong> ทั้งหนึ่งต่อหนึ่งและครอบคลุม<br>
+                            <strong>คุณสมบัติ:</strong> มีฟังก์ชันผกผัน<br>
+                            <strong>การสอดคล้องที่สมบูรณ์:</strong> แต่ละอินพุตจับคู่กับเอาต์พุตเพียงหนึ่งตัว และแต่ละเอาต์พุตมาจากอินพุตเพียงหนึ่งตัว<br>
+                            <strong>ตัวอย่าง:</strong> f(x) = 2x (จาก ℝ ไป ℝ)</span>
+                        </p>
+                    </div>
+                    
+                    <div class="interactive-card">
+                        <h4>
+                            <span class="english">⚠️ Neither One-to-One nor Onto</span>
+                            <span class="thai">⚠️ ไม่ใช่หนึ่งต่อหนึ่งและไม่ครอบคลุม</span>
+                        </h4>
+                        <p>
+                            <span class="english"><strong>Definition:</strong> Function that fails both tests<br>
+                            <strong>Characteristics:</strong> Some outputs have multiple inputs, some codomain elements are never reached<br>
+                            <strong>Example:</strong> f: ℝ → ℝ, f(x) = x² (fails horizontal line test, negative numbers never reached)</span>
+                            <span class="thai"><strong>นิยาม:</strong> ฟังก์ชันที่ไม่ผ่านการทดสอบทั้งสอง<br>
+                            <strong>ลักษณะ:</strong> เอาต์พุตบางตัวมีอินพุตหลายตัว สมาชิกบางตัวในโคโดเมนไม่เคยถูกเข้าถึง<br>
+                            <strong>ตัวอย่าง:</strong> f: ℝ → ℝ, f(x) = x² (ไม่ผ่านการทดสอบเส้นนอน ไม่สามารถเข้าถึงจำนวนลบได้)</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>
+                    <span class="english">Visual Tests for Function Properties</span>
+                    <span class="thai">การทดสอบด้วยภาพสำหรับคุณสมบัติของฟังก์ชัน</span>
+                </h3>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>
+                            <span class="english">📊 Vertical Line Test</span>
+                            <span class="thai">📊 การทดสอบเส้นตั้ง</span>
+                        </h4>
+                        <p>
+                            <span class="english"><strong>Purpose:</strong> Determines if a relation is a function<br>
+                            <strong>Rule:</strong> No vertical line should intersect the graph more than once<br>
+                            <strong>If it passes:</strong> It's a function</span>
+                            <span class="thai"><strong>จุดประสงค์:</strong> กำหนดว่าความสัมพันธ์เป็นฟังก์ชันหรือไม่<br>
+                            <strong>กฎ:</strong> ไม่มีเส้นตั้งควรตัดกราฟมากกว่าหนึ่งครั้ง<br>
+                            <strong>ถ้าผ่าน:</strong> เป็นฟังก์ชัน</span>
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h4>
+                            <span class="english">📈 Horizontal Line Test</span>
+                            <span class="thai">📈 การทดสอบเส้นนอน</span>
+                        </h4>
+                        <p>
+                            <span class="english"><strong>Purpose:</strong> Determines if a function is one-to-one<br>
+                            <strong>Rule:</strong> No horizontal line should intersect the graph more than once<br>
+                            <strong>If it passes:</strong> Function is injective (one-to-one)</span>
+                            <span class="thai"><strong>จุดประสงค์:</strong> กำหนดว่าฟังก์ชันเป็นหนึ่งต่อหนึ่งหรือไม่<br>
+                            <strong>กฎ:</strong> ไม่มีเส้นนอนควรตัดกราฟมากกว่าหนึ่งครั้ง<br>
+                            <strong>ถ้าผ่าน:</strong> ฟังก์ชันเป็นอินเจกทีฟ (หนึ่งต่อหนึ่ง)</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()" id="prevBtn">
+            <span class="english">← Previous</span>
+            <span class="thai">← ก่อนหน้า</span>
+        </button>
+        <button class="nav-btn" onclick="nextSlide()" id="nextBtn">
+            <span class="english">Next →</span>
+            <span class="thai">ถัดไป →</span>
+        </button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let isVietnamese = false;
+
+        // Initialize
+        document.getElementById('totalSlides').textContent = totalSlides;
+        updateSlideDisplay();
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+            
+            // Update slide counter
+            document.getElementById('currentSlide').textContent = index + 1;
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides - 1) {
+                currentSlideIndex++;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        function toggleLanguage() {
+            const body = document.body;
+            body.classList.toggle('bilingual');
+        }
+
+        function updateSlideDisplay() {
+            showSlide(currentSlideIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowRight':
+                case ' ':
+                    event.preventDefault();
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    previousSlide();
+                    break;
+                case 'Home':
+                    event.preventDefault();
+                    currentSlideIndex = 0;
+                    updateSlideDisplay();
+                    break;
+                case 'End':
+                    event.preventDefault();
+                    currentSlideIndex = totalSlides - 1;
+                    updateSlideDisplay();
+                    break;
+            }
+        });
+
+        // Initialize slide display
+        showSlide(0);
+    </script>
+</body>
+</html>
+                        <span class="english">📊 Basic Algebra</span>
+                        <span class="thai">📊 พีชคณิตพื้นฐาน</span>
+                    </h3>
+                    <p>
+                        <span class="english">Master operations with variables, equation solving, and coordinate plotting</span>
+                        <span class="thai">เชี่ยวชาญการดำเนินการกับตัวแปร การแก้สมการ และการลงจุดพิกัด</span>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>
+                        <span class="english">📐 Coordinate Geometry</span>
+                        <span class="thai">📐 เรขาคณิตพิกัด</span>
+                    </h3>
+                    <p>
+                        <span class="english">Understand Cartesian systems, distance calculations, and spatial relationships</span>
+                        <span class="thai">เข้าใจระบบคาร์ทีเซียน การคำนวณระยะทาง และความสัมพันธ์เชิงพื้นที่</span>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>
+                        <span class="english">📈 Function Theory</span>
+                        <span class="thai">📈 ทฤษฎีฟังก์ชัน</span>
+                    </h3>
+                    <p>
+                        <span class="english">Explore domains, ranges, and different types of mathematical functions</span>
+                        <span class="thai">สำรวจโดเมน เรนจ์ และประเภทต่างๆ ของฟังก์ชันทางคณิตศาสตร์</span>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>
+                        <span class="english">🎯 Problem Solving</span>
+                        <span class="thai">🎯 การแก้ปัญหา</span>
+                    </h3>
+                    <p>
+                        <span class="english">Apply concepts through practical examples and real-world applications</span>
+                        <span class="thai">ประยุกต์แนวคิดผ่านตัวอย่างเชิงปฏิบัติและการใช้งานในโลกจริง</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="formula">
+                <span class="english">Learning Objectives: Build → Practice → Apply → Master</span>
+                <span class="thai">วัตถุประสงค์การเรียนรู้: สร้าง → ฝึกฝน → ประยุกต์ → เชี่ยวชาญ</span>
+            </div>
+        </div>
+
+        <!-- Slide 3: Operations with Variables -->
+        <div class="slide">
+            <h2>
+                <span class="english">Operations with Variables</span>
+                <span class="thai">การดำเนินการกับตัวแปร</span>
+            </h2>
+
+            <div class="card-grid">
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">➕➖ Addition & Subtraction</span>
+                        <span class="thai">➕➖ การบวกและลบ</span>
+                    </h3>
+                    <p>
+                        <span class="english">Combine like terms: 3x + 5x = 8x</span>
+                        <span class="thai">รวมพจน์ที่เหมือนกัน: 3x + 5x = 8x</span>
+                    </p>
+                </div>
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">✖️➗ Multiplication & Division</span>
+                        <span class="thai">✖️➗ การคูณและหาร</span>
+                    </h3>
+                    <p>
+                        <span class="english">Work with coefficients: 4x ÷ 2 = 2x</span>
+                        <span class="thai">ทำงานกับสัมประสิทธิ์: 4x ÷ 2 = 2x</span>
+                    </p>
+                </div>
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">📦 Distributive Property</span>
+                        <span class="thai">📦 สมบัติการแจกแจง</span>
+                    </h3>
+                    <p>
+                        <span class="english">Expand expressions: a(b + c) = ab + ac</span>
+                        <span class="thai">กระจายนิพจน์: a(b + c) = ab + ac</span>
+                    </p>
+                </div>
+                <div class="interactive-card">
+                    <h3>
+                        <span class="english">🔗 Combining Terms</span>
+                        <span class="thai">🔗 การรวมพจน์</span>
+                    </h3>
+                    <p>
+                        <span class="english">Simplify complex expressions systematically</span>
+                        <span class="thai">ลดรูปนิพจน์ที่ซับซ้อนอย่างเป็นระบบ</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>
+                    <span class="english">Complete Step-by-Step Example</span>
+                    <span class="thai">ตัวอย่างทีละขั้นตอนที่สมบูรณ์</span>
+                </h3>
+                <p><strong>
+                    <span class="english">Simplify: 4(2x + 3) - 2(x - 1)</span>
+                    <span class="thai">ลดรูป: 4(2x + 3) - 2(x - 1)</span>
+                </strong></p>
+
+                <ol class="step-list">
+                    <li>
+                        <span class="english">Apply distributive property: 4(2x) + 4(3) - 2(x) - 2(-1)</span>
+                        <span class="thai">ใช้สมบัติการแจกแจง: 4(2x) + 4(3) - 2(x) - 2(-1)</span>
+                    </li>
+                    <li>
+                        <span class="english">Multiply: 8x + 12 - 2x + 2</span>
+                        <span class="thai">คูณ: 8x + 12 - 2x + 2</span>
+                    </li>
+                    <li>
+                        <span class="english">Combine like terms: (8x - 2x) + (12 + 2)</span>
+                        <span class="thai">รวมพจน์ที่เหมือนกัน: (8x - 2x) + (12 + 2)</span>
+                    </li>
+                    <li>
+                        <span class="english">Final answer: 6x + 14</span>
+                        <span class="thai">คำตอบสุดท้าย: 6x + 14</span>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 4: Solving Equations -->
+        <div class="slide">
+            <h2>
+                <span class="english">Solving Equations</span>
+                <span class="thai">การแก้สมการ</span>
+            </h2>
+
+            <h3>
+                <span class="english">Systematic Approach to Isolating Variables</span>
+                <span class="thai">วิธีการเป็นระบบในการแยกตัวแปร</span>
+            </h3>
+
+            <div class="example-box">
+                <h3>
+                    <span class="english">Example 1: Simple Linear Equation</span>
+                    <span class="thai">ตัวอย่างที่ 1: สมการเชิงเส้นง่าย</span>
+                </h3>
+                <p><strong>
+                    <span class="english">Solve: 2x + 5 = 13</span>
+                    <span class="thai">แก้: 2x + 5 = 13</span>
+                </strong></p>
+
+                <ol class="step-list">
+                    <li>
+                        <span class="english">Subtract 5 from both sides: 2x + 5 - 5 = 13 - 5</span>
+                        <span class="thai">ลบ 5 จากทั้งสองข้าง: 2x + 5 - 5 = 13 - 5</span>
+                    </li>
+                    <li>
+                        <span class="english">Simplify: 2x = 8</span>
+                        <span class="thai">ลดรูป: 2x = 8</span>
+                    </li>
+                    <li>
+                        <span class="english">Divide both sides by 2: x = 4</span>
+                        <span class="thai">หารทั้งสองข้างด้วย 2: x = 4</span>
+                    </li>
+                    <li class="solution">
+                        <span class="english">Check: 2(4) + 5 = 8 + 5 = 13 ✓</span>
+                        <span class="thai">ตรวจสอบ: 2(4) + 5 = 8 + 5 = 13 ✓</span>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="example-box">
+                <h3>
+                    <span class="english">Example 2: Multi-step Equation</span>
+                    <span class="thai">ตัวอย่างที่ 2: สมการหลายขั้นตอน</span>
+                </h3>
+                <p><strong>
+                    <span class="english">Solve: 3(x - 2) + 4 = 16</span>
+                    <span class="thai">แก้: 3(x - 2) + 4 = 16</span>
+                </strong></p>
+
+                <ol class="step-list">
+                    <li>
+                        <span class="english">Distribute: 3x - 6 + 4 = 16</span>
+                        <span class="thai">แจกแจง: 3x - 6 + 4 = 16</span>
+                    </li>
+                    <li>
+                        <span class="english">Combine like terms: 3x - 2 = 16</span>
+                        <span class="thai">รวมพจน์ที่เหมือนกัน: 3x - 2 = 16</span>
+                    </li>
+                    <li>
+                        <span class="english">Add 2 to both sides: 3x = 18</span>
+                        <span class="thai">บวก 2 ทั้งสองข้าง: 3x = 18</span>
+                    </li>
+                    <li>
+                        <span class="english">Divide by 3: x = 6</span>
+                        <span class="thai">หารด้วย 3: x = 6</span>
+                    </li>
+                    <li class="solution">
+                        <span class="english">Check: 3(6-2) + 4 = 3(4) + 4 = 16 ✓</span>
+                        <span class="thai">ตรวจสอบ: 3(6-2) + 4 = 3(4) + 4 = 16 ✓</span>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 5: Working with Coordinates -->
+        <div class="slide">
+            <h2>
+                <span class="english">Working with Coordinates</span>
+                <span class="thai">การทำงานกับพิกัด</span>
+            </h2>
+
+            <div class="card">
+                <h3>
+                    <span class="english">Ordered Pairs (x, y) Format</span>
+                    <span class="thai">คู่อันดับ รูปแบบ (x, y)</span>
+                </h3>
+                <p>
+                    <span class="english">Every point in the coordinate plane is represented by an ordered pair (x, y) where x is the horizontal position and y is the vertical position.</span>
+                    <span class="thai">ทุกจุดในระนาบพิกัดแสดงด้วยคู่อันดับ (x, y) โดยที่ x คือตำแหน่งแนวนอน และ y คือตำแหน่งแนวตั้ง</span>
+                </p>
+            </div>
+
+            <div class="coordinate-plane">
+                <div class="axis x-axis"></div>
+                <div class="axis y-axis"></div>
+                <div class="quadrant q1">I<br>(+,+)</div>
+                <div class="quadrant q2">II<br>(-,+)</div>
+                <div class="quadrant q3">III<br>(-,-)</div>
+                <div class="quadrant q4">IV<br>(+,-)</div>
+                <div class="point" style="left: 70%; top: 70%;" title="Point (3, -2)"></div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>
+                        <span class="english">Quadrant I</span>
+                        <span class="thai">จตุภาคที่ I</span>
+                    </h3>
+                    <p>
+                        <span class="english">Both x and y are positive (+, +)</span>
+                        <span class="thai">ทั้ง x และ y เป็นบวก (+, +)</span>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>
+                        <span class="english">Quadrant II</span>
+                        <span class="thai">จตุภาคที่ II</span>
+                    </h3>
+                    <p>
+                        <span class="english">x is negative, y is positive (-, +)</span>
+                        <span class="thai">x เป็นลบ, y เป็นบวก (-, +)</span>
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>
